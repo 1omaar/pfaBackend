@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
@@ -41,5 +42,18 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
        productRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Product> searchProducts(String query) {
+        return productRepository.findAll().stream()
+                .filter(product -> containsIgnoreCase(product.getNom(), query) ||
+                        containsIgnoreCase(product.getDescription(), query) ||
+                        String.valueOf(product.getQuantite()).contains(query) ||
+                        String.valueOf(product.getPrix()).contains(query))
+                .collect(Collectors.toList());
+    }
+    private boolean containsIgnoreCase(String source, String query) {
+        return source != null && source.toLowerCase().contains(query.toLowerCase());
     }
 }
